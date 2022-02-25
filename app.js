@@ -6,7 +6,16 @@ const app = express();
 
 // middleware
 app.use(express.json());
+// note this middleware will go to each
+app.use((req, res, next) => {
+  console.log("We're currently inside the middleware");
+  next(); // need to call next()
+});
 
+app.use((req, res, next) => {
+  req.requestTime = new Date().toISOString();
+  next(); // need to call next()
+});
 // read the tours data and parse it into a JSON object
 const tours = JSON.parse(
   fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`)
@@ -18,6 +27,7 @@ const getAllTours = (req, res) => {
   // So what happens when the endpoint gets hit?
   // 1. We need to get the data (but not in the callback function)
   // 2. Send it back to the client with an added success data point
+
   res
     .status(200)
     .json({ status: 'success', results: tours.length, data: { tours } });
@@ -25,6 +35,8 @@ const getAllTours = (req, res) => {
 
 const getTour = (req, res) => {
   console.log(req.params);
+  // print middleware time
+  console.log(req.requestTime);
 
   //convert to integer
   const id = req.params.id * 1;
