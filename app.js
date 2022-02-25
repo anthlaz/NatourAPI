@@ -12,8 +12,8 @@ const tours = JSON.parse(
   fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`)
 );
 
-// ROUTES
-app.get('/api/v1/tours', (req, res) => {
+// HANDLERS
+const getAllTours = (req, res) => {
   // this callback is usually called the ROUTE HANDLER
   // So what happens when the endpoint gets hit?
   // 1. We need to get the data (but not in the callback function)
@@ -21,10 +21,9 @@ app.get('/api/v1/tours', (req, res) => {
   res
     .status(200)
     .json({ status: 'success', results: tours.length, data: { tours } });
-});
+};
 
-// route with parameters
-app.get('/api/v1/tours/:id', (req, res) => {
+const getTour = (req, res) => {
   console.log(req.params);
 
   //convert to integer
@@ -38,9 +37,9 @@ app.get('/api/v1/tours/:id', (req, res) => {
   }
   const tour = tours.find((el) => el.id === id);
   res.status(200).json({ status: 'success', data: { tour } });
-});
+};
 
-app.post('/api/v1/tours', (req, res) => {
+const createTour = (req, res) => {
   // In post requests we'll have information from the client.
 
   const newID = tours[tours.length - 1].id + 1;
@@ -56,23 +55,38 @@ app.post('/api/v1/tours', (req, res) => {
       res.status(201).json({ status: 'success', data: { tour: newTour } });
     }
   );
-});
+};
 
-// update route
-app.patch('/api/v1/tours/:id', (req, res) => {
+const updateTour = (req, res) => {
   // this is the function that we would use to update data in the database
 
   // dummy response
   res.status(200).json({ status: 'Success!' });
-});
+};
 
-// delete route
-app.delete('/api/v1/tours/:id', (req, res) => {
+const deleteTour = (req, res) => {
   // this is the function that we would use to update data in the database
 
   // dummy response
   res.status(200).json({ status: 'Success!' });
-});
+};
+
+// ROUTES
+// app.get('/api/v1/tours', getAllTours);
+// app.get('/api/v1/tours/:id', getTour);
+// app.post('/api/v1/tours', createTour);
+// app.patch('/api/v1/tours/:id', updateTour);
+// app.delete('/api/v1/tours/:id', deleteTour);
+
+// easier to read that the above
+app.route('/api/v1/tours').get(getAllTours).post(createTour);
+
+app
+  .route('/api/v1/tours/:id')
+  .get(getTour)
+  .patch(updateTour)
+  .delete(deleteTour);
+
 // SERVER
 const port = 8000;
 app.listen(port, () => {
