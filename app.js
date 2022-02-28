@@ -1,12 +1,14 @@
-// import express
+// 0) import express
 const express = require('express');
 const fs = require('fs');
+const morgan = require('morgan');
 // declare our app var
 const app = express();
 
-// middleware
+// 1) middleware
+app.use(morgan('dev'));
 app.use(express.json());
-// note this middleware will go to each
+
 app.use((req, res, next) => {
   console.log("We're currently inside the middleware");
   next(); // need to call next()
@@ -21,7 +23,7 @@ const tours = JSON.parse(
   fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`)
 );
 
-// HANDLERS
+// 2) ROUTE HANDLERS
 const getAllTours = (req, res) => {
   // this callback is usually called the ROUTE HANDLER
   // So what happens when the endpoint gets hit?
@@ -83,7 +85,36 @@ const deleteTour = (req, res) => {
   res.status(200).json({ status: 'Success!' });
 };
 
-// ROUTES
+const getAllUsers = (req, res) => {
+  res
+    .status(500)
+    .json({ status: 'error', message: 'This route is not yet defined' });
+};
+
+const getUser = (req, res) => {
+  res
+    .status(500)
+    .json({ status: 'error', message: 'This route is not yet defined' });
+};
+
+const createUser = (req, res) => {
+  res
+    .status(500)
+    .json({ status: 'error', message: 'This route is not yet defined' });
+};
+
+const updateUser = (req, res) => {
+  res
+    .status(500)
+    .json({ status: 'error', message: 'This route is not yet defined' });
+};
+
+const deleteUser = (req, res) => {
+  res
+    .status(500)
+    .json({ status: 'error', message: 'This route is not yet defined' });
+};
+// 3) ROUTES
 // app.get('/api/v1/tours', getAllTours);
 // app.get('/api/v1/tours/:id', getTour);
 // app.post('/api/v1/tours', createTour);
@@ -99,7 +130,15 @@ app
   .patch(updateTour)
   .delete(deleteTour);
 
-// SERVER
+app.route('/api/v1/users').get(getAllUsers).post(createUser);
+
+app
+  .route('/api/v1/users/:id')
+  .get(getUser)
+  .patch(updateUser)
+  .delete(deleteUser);
+
+// 4) START SERVER
 const port = 8000;
 app.listen(port, () => {
   // this callback will be executed when the server runs
