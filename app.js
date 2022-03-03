@@ -13,14 +13,16 @@ const userRouter = require('./routes/userRoutes');
 app.use(morgan('dev'));
 app.use(express.json());
 
+// allow us to use static files in express
+app.use(express.static(`${__dirname}/public`));
+
 // below is a middleware example
 // app.use((req, res, next) => {
 //   console.log("We're currently inside the middleware");
 //   next(); // need to call next()
 // });
 
-// 2) ROUTE HANDLERS
-//  - None will be here
+// 2) ROUTES
 //  - use the routers imported (which are effectively middleware)
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
