@@ -4,7 +4,6 @@ const morgan = require('morgan');
 
 // create our express app
 const app = express();
-
 // OUR OWN MODULES
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
