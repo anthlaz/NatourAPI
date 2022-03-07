@@ -76,16 +76,39 @@ exports.createTour = async (req, res) => {
   }
 };
 
-exports.updateTour = (req, res) => {
+exports.updateTour = async (req, res) => {
   // this is the function that we would use to update data in the database
+  // we can find/update in one command with mongoose. We will use the ID
+  try {
+    const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
 
-  // dummy response
-  res.status(200).json({ status: 'Success!' });
+    res.status(201).json({
+      status: 'success',
+      data: {
+        tour: tour,
+      },
+    });
+  } catch (err) {
+    res.status(400).json({ status: 'fail', message: 'invalid data sent!' });
+  }
 };
 
-exports.deleteTour = (req, res) => {
+exports.deleteTour = async (req, res) => {
   // this is the function that we would use to update data in the database
-
-  // dummy response
-  res.status(200).json({ status: 'Success!' });
+  try {
+    const deletedTour = await Tour.findByIdAndDelete(req.params.id); // no options to add in delete
+    res.status(201).json({
+      status: 'success',
+      data: {
+        tour: deletedTour,
+      },
+    });
+  } catch (err) {
+    res
+      .status(400)
+      .json({ status: 'fail', message: 'Incorrect Id for deletion!' });
+  }
 };
