@@ -26,6 +26,7 @@ exports.getAllTours = async (req, res) => {
   // So what happens when the endpoint gets hit?
   // 1. We need to get the data (but not in the callback function)
   // 2. Send it back to the client with an added success data point
+  console.log(req.query);
   try {
     const tours = await Tour.find(); // .find() returns all if nothing is specified
 
