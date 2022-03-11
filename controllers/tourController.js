@@ -22,14 +22,27 @@ const Tour = require('./../models/tourModel');
 
 // Async functions return a promise. So we'll need to use await here as well as store the returned data
 exports.getAllTours = async (req, res) => {
-  // this callback is usually called the ROUTE HANDLER
-  // So what happens when the endpoint gets hit?
-  // 1. We need to get the data (but not in the callback function)
-  // 2. Send it back to the client with an added success data point
   console.log(req.query);
-  try {
-    const tours = await Tour.find(); // .find() returns all if nothing is specified
 
+  try {
+    // first we want to build the query
+    const queryObject = { ...req.query }; // copy the query using destructuring
+    const excludedFields = ['page', 'sort', 'limit', 'fields']; // fields to exclude
+    excludedFields.forEach((el) => delete queryObject[el]); // deletes fields that aren't wanted
+
+    // now we can use advanced filtering with gte, lte etc.
+    let queryString = JSON.stringify(queryObject);
+    queryString = queryString.replace(
+      /\b(gte|gt|lte|lt)\b/g,
+      (match) => `$${match}`
+    ); // basically we replace gte gt lte with $ infront
+    console.log(JSON.parse(queryString));
+    const query = Tour.find(JSON.parse(queryString));
+
+    // execute the query
+    const tours = await query;
+    // console.log(req.query);
+    // send the response
     res
       .status(200)
       .json({ status: 'success', resuls: tours.length, data: { tours } });
