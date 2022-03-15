@@ -37,7 +37,12 @@ exports.getAllTours = async (req, res) => {
       (match) => `$${match}`
     ); // basically we replace gte gt lte with $ infront
     console.log(JSON.parse(queryString));
-    const query = Tour.find(JSON.parse(queryString));
+    let query = Tour.find(JSON.parse(queryString));
+
+    // after we've made our query, we can now sort.
+    if (req.query.sort) {
+      query = query.sort(req.query.sort); // req.query.sort === price
+    }
 
     // execute the query
     const tours = await query;
