@@ -208,13 +208,53 @@ exports.getMonthyPlan = async (req, res) => {
   try {
     const year = req.params.year * 1;
 
+    const plan = await Tour.aggregate([
+      // stage one
+      {
+        // Deconstructs an array field from the input documents to output a document for each element
+        // so basically as there were 3 start dates in each document, unwind will now have one start date per document
+        $unwind: '$startDates',
+      },
+      // stage two
+      {
+        $match: {
+          startDates: {
+            // have date only for one year e.g. 01-Jan to 31-Dec
+            $gte: new Date(`${year}-01-01`),
+            $lte: new Date(`${year}-12-31`),
+          },
+        },
+      },
+      // stage three
+      {
+        $group: {
+          _id: { $month: '$startDates' }, // what to group by
+          numTourStarts: { $sum: 1 }, // we want how many tours start in that month
+          tours: { $push: '$name' }, // create an array and push the name of each tour as an element into this array
+        },
+      },
+      // stage four
+      {
+        $addFields: { month: '$_id' },
+      },
+      // stage five
+      {
+        $project: {
+          _id: 0, // Id will no longer show up or place value as 1 to keep it showing up
+        },
+      },
+      // stage six
+      {
+        $sort: { numTourStarts: 1 }, // sort by numTourStarts in ascending order
+      },
+    ]);
+
     res.status(201).json({
       status: 'success',
       stats: {
-        tourStats: stats,
+        tourPlan: plan,
       },
     });
-    const plan = await Tour.aggregate([]);
   } catch (err) {
     res.status(400).json({ status: 'fail', message: err });
   }
