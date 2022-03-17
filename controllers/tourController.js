@@ -164,3 +164,58 @@ exports.deleteTour = async (req, res) => {
     res.status(400).json({ status: 'fail', message: err });
   }
 };
+
+exports.getTourStats = async (req, res) => {
+  // here we are going to calculate some stats from our tours
+
+  try {
+    // we define stages within our aggregate function
+    // the documents pass through these stages one by one
+    // each stage is an object
+    const stats = await Tour.aggregate([
+      // match stage (stage ONE)
+      {
+        $match: { ratingsAverage: { $gte: 4.5 } }, // get documents where ratingsAvrage >= 4.5
+      },
+      // group stage (stage TWO)
+      {
+        $group: {
+          _id: '$ratingsAverage', // this specifies what we want to group by
+          numTours: { $sum: 1 }, // for each document, one will be added to this numTours counter
+          numRatings: { $sum: '$ratingsQuantity' },
+          avgRating: { $avg: '$ratingsAverage' }, // calculates avg for field ratingsAverage and stores in avgRating
+          avgPrice: { $avg: '$price' },
+          minPrice: { $min: '$price' },
+          maxPrice: { $max: '$price' },
+        },
+      },
+      {
+        $sort: { avgPrice: 1 }, // which field to sort by (remember we need to use the fields in the previous stage)
+      },
+    ]);
+    res.status(201).json({
+      status: 'success',
+      stats: {
+        tourStats: stats,
+      },
+    });
+  } catch (err) {
+    res.status(400).json({ status: 'fail', message: err });
+  }
+};
+
+exports.getMonthyPlan = async (req, res) => {
+  try {
+    const year = req.params.year * 1;
+
+    res.status(201).json({
+      status: 'success',
+      stats: {
+        tourStats: stats,
+      },
+    });
+    const plan = await Tour.aggregate([]);
+  } catch (err) {
+    res.status(400).json({ status: 'fail', message: err });
+  }
+};

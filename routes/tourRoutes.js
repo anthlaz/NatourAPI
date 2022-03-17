@@ -27,6 +27,9 @@ tourRouter
   .route('/top-5-cheap')
   .get(tourController.aliasTopTours, tourController.getAllTours);
 
+tourRouter.route('/tour-stats').get(tourController.getTourStats);
+tourRouter.route('/monthly-plan/:year').get(tourController.getMonthyPlan);
+
 tourRouter
   .route('/')
   .get(tourController.getAllTours)
