@@ -1,6 +1,6 @@
 // import our Tour model
 const Tour = require('./../models/tourModel');
-
+const APIFeatures = require('./../utils/apiFeatures');
 // // read the tours data and parse it into a JSON object
 // const tours = JSON.parse(
 //   fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`)
@@ -20,38 +20,73 @@ const Tour = require('./../models/tourModel');
 
 // Tour route handlers
 
+exports.aliasTopTours = async (req, res, next) => {
+  // this function will get the top tours based on price and rating
+  req.query.limit = '5';
+  req.query.sort = '-ratingsAverage,price';
+  req.query.fields = 'name,price,ratingsAverage,summary,difficulty';
+  next();
+};
+
 // Async functions return a promise. So we'll need to use await here as well as store the returned data
 exports.getAllTours = async (req, res) => {
-  console.log(req.query);
+  // console.log(req.query);
 
   try {
-    // first we want to build the query
-    const queryObject = { ...req.query }; // copy the query using destructuring
-    const excludedFields = ['page', 'sort', 'limit', 'fields']; // fields to exclude
-    excludedFields.forEach((el) => delete queryObject[el]); // deletes fields that aren't wanted
+    // before creating class using below code
 
-    // now we can use advanced filtering with gte, lte etc.
-    let queryString = JSON.stringify(queryObject);
-    queryString = queryString.replace(
-      /\b(gte|gt|lte|lt)\b/g,
-      (match) => `$${match}`
-    ); // basically we replace gte gt lte with $ infront
-    console.log(JSON.parse(queryString));
-    let query = Tour.find(JSON.parse(queryString));
+    // 1) BUILD QUERY
+    // const queryObject = { ...req.query }; // copy the query using destructuring
+    // const excludedFields = ['page', 'sort', 'limit', 'fields']; // fields to exclude
+    // excludedFields.forEach((el) => delete queryObject[el]); // deletes fields that aren't wanted
 
-    // after we've made our query, we can now sort.
-    if (req.query.sort) {
-      query = query.sort(req.query.sort); // req.query.sort === price
-    }
+    // // 1B) ADVANCED FILTERING
+
+    // let queryString = JSON.stringify(queryObject); // turn query object into string
+    // queryString = queryString.replace(
+    //   /\b(gte|gt|lte|lt)\b/g,
+    //   (match) => `$${match}`
+    // ); // basically we replace gte gt lte with $ infront
+
+    // /!\ here we so here we
+    // let query = Tour.find(JSON.parse(queryString)); // query the DB using the Tour handler
+
+    // after we've made our query, we can now sort using whatever values are in sort
+    // if (req.query.sort) {
+    //   const sortBy = req.query.sort.split(',').join(' ');
+    //   query = query.sort(sortBy); // req.query.sort === price
+    // } else {
+    //   query = query.sort('-createdAt');
+    // }
+
+    // field limiting
+    // if (req.query.fields) {
+    //   const fields = req.query.fields.split(',').join(' ');
+    //   query = query.select(fields);
+    // } else {
+    //   query = query.select('-__v'); // only selects what is placed into the fields value
+    // }
+
+    // pagination - e.g. page=2&limit=10
+    // const page = req.query.page * 1 || 1;
+    // const limit = req.query.limit * 1 || 100;
+    // const skip = (page - 1) * limit;
+    // query = query.skip(skip).limit(limit); // limit is the # we want in the query.
 
     // execute the query
-    const tours = await query;
-    // console.log(req.query);
+    const features = new APIFeatures(Tour.find(), req.query)
+      .filter()
+      .sort()
+      .limitFields()
+      .paginate();
+    const tours = await features.query;
+
     // send the response
     res
       .status(200)
       .json({ status: 'success', resuls: tours.length, data: { tours } });
   } catch (err) {
+    console.log(err);
     res.status(404).json({
       status: 'fail',
       message: err,
@@ -126,8 +161,6 @@ exports.deleteTour = async (req, res) => {
       },
     });
   } catch (err) {
-    res
-      .status(400)
-      .json({ status: 'fail', message: 'Incorrect Id for deletion!' });
+    res.status(400).json({ status: 'fail', message: err });
   }
 };

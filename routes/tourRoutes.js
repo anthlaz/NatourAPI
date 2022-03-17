@@ -24,6 +24,10 @@ const tourRouter = express.Router();
 // if not, send back 400 response
 
 tourRouter
+  .route('/top-5-cheap')
+  .get(tourController.aliasTopTours, tourController.getAllTours);
+
+tourRouter
   .route('/')
   .get(tourController.getAllTours)
   .post(tourController.createTour); // here we are chaining middleware
