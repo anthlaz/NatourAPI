@@ -56,6 +56,10 @@ const tourSchema = new mongoose.Schema(
       select: false,
     },
     startDates: [Date],
+    secretTour: {
+      type: Boolean,
+      default: false,
+    },
   }, // schema options
   {
     toJSON: { virtuals: true },
@@ -89,6 +93,25 @@ tourSchema.pre('save', function (next) {
 //   next();
 // });
 
+// QUERY MIDDLEWARE
+// could have also been just for 'find' hook by doing it like: tourSchema.pre('find', function (next) {
+// instead a reg exp. has been used for 'find'
+tourSchema.pre(/^find/, function (next) {
+  this.find({ secretTour: { $ne: true } });
+  next();
+});
+
+// query middleware AFTER the find...() has been executed
+tourSchema.post(/^find/, function (docs, next) {
+  console.log(docs);
+  next();
+});
+
+// AGGREGATE MIDDLEWARE
+// removes secretTour from output using the aggregate hook (so there are many ways to do this type of stuff)
+tourSchema.pre('aggregate', function (next) {
+  this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
+});
 // now from the schema create a model
 const Tour = mongoose.model('Tour', tourSchema);
 
