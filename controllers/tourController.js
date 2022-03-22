@@ -136,7 +136,7 @@ exports.updateTour = async (req, res) => {
   try {
     const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
-      runValidators: true,
+      runValidators: true, // will be needed for validators that are set in the schema
     });
 
     res.status(201).json({
@@ -146,7 +146,7 @@ exports.updateTour = async (req, res) => {
       },
     });
   } catch (err) {
-    res.status(400).json({ status: 'fail', message: 'invalid data sent!' });
+    res.status(400).json({ status: 'fail', message: err });
   }
 };
 
