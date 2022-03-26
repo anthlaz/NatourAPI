@@ -19,7 +19,8 @@ mongoose.connect(DB).then((con) => {
 });
 
 // 2) START SERVER
-const port = 8000;
+const port = process.env.PORT || 3000;
+
 app.listen(port, () => {
   // this callback will be executed when the server runs
   try {

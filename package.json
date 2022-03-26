@@ -4,7 +4,8 @@
   "description": "learning node",
   "main": "app.js",
   "scripts": {
-    "start": "nodemon server.js"
+    "start": "nodemon server.js",
+    "debug": "ndb server.js"
   },
   "author": "Anthony Lazos",
   "license": "ISC",
@@ -13,7 +14,8 @@
     "express": "^4.17.3",
     "mongoose": "^6.2.4",
     "morgan": "^1.10.0",
-    "slugify": "^1.6.5"
+    "slugify": "^1.6.5",
+    "validator": "^13.7.0"
   },
   "devDependencies": {
     "eslint": "^8.10.0",
@@ -24,6 +26,7 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-react": "^7.29.2",
+    "ndb": "^1.1.5",
     "prettier": "^2.5.1"
   }
 }

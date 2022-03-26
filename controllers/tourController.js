@@ -126,7 +126,7 @@ exports.createTour = async (req, res) => {
     });
   } catch (err) {
     // so what type of errors will this type of action potentially throw?
-    res.status(400).json({ status: 'fail', message: 'invalid data sent!' });
+    res.status(400).json({ status: 'fail', message: err });
   }
 };
 

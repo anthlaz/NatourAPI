@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
-
+const validator = require('validator'); // external validator library
 // create the tours schema
 const tourSchema = new mongoose.Schema(
   {
@@ -24,6 +24,10 @@ const tourSchema = new mongoose.Schema(
     difficulty: {
       type: String,
       required: [true, 'A tour must have a difficulty'],
+      enum: {
+        values: ['easy', 'medium', 'difficult'],
+        message: 'Difficulty must be Easy, medium, or difficult', // basically these are the option values that can be entered
+      },
     },
     ratingsAverage: {
       type: Number,
@@ -39,7 +43,16 @@ const tourSchema = new mongoose.Schema(
       type: Number,
       required: [true, 'A tour must have a price'],
     },
-    priceDiscount: Number, // no schema type options here
+    priceDiscount: {
+      type: Number,
+      validate: {
+        validator: function (val) {
+          return val < this.price;
+        },
+        message:
+          'Discount price {{VALUE }}must be lower than the regular price', // VALUE represents
+      },
+    },
     summary: {
       type: String,
       trim: true, // trim will remove all whitespace in beginning of string and the end.
@@ -48,9 +61,6 @@ const tourSchema = new mongoose.Schema(
     description: {
       type: String,
       trim: true,
-      enum: { 
-        values: ['easy', 'medium', 'difficult'], 
-        message: 'Difficulty must be Easy, medium, or difficult'// basically these are the option values that can be entered
     },
     imageCover: {
       type: String, // will be the reference to the image
